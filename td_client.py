@@ -79,7 +79,7 @@ async def main_handler(request):
     # grab the access_token
     print (decoded_content)
 
-    access_token = decoded_content['access_token']
+    '''access_token = decoded_content['access_token']
     headers = {'Authorization': "Bearer {}".format(access_token)}
 
     # THE DAILY PRICES ENDPOINT 
@@ -101,9 +101,9 @@ async def main_handler(request):
     content = requests.get(url = endpoint, params = payload)
 
     # convert it dictionary object
-    data = content.json()
+    data = content.json()'''
 
-    return web.json_response(data)
+    return web.json_response(decoded_content)
 
 '''
 
