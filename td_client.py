@@ -103,7 +103,7 @@ async def main_handler(request):
     # convert it dictionary object
     data = content.json()
 
-    return data
+    return web.json_response(data)
 
 '''
 
