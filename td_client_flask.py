@@ -100,7 +100,7 @@ class TDConfiguration(Resource):
         # grab the access_token
         print (decoded_content)
 
-        decoded_content
+        return decoded_content
 
 api.add_resource(TDConfiguration, '/auth') # Route_1
 
