@@ -10,7 +10,6 @@ import getopt
 import sys
  
 from flask_restful import Resource, Api, reqparse
-from sqlalchemy import create_engine
 from functools import update_wrapper
 from datetime import timedelta
 from functools import update_wrapper
