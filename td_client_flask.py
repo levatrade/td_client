@@ -71,7 +71,7 @@ class TDConfiguration(Resource):
         new_url = browser.url
 
         # grab the part we need, and decode it.
-        parse_url = urllib.parse.unquote(new_url.split('code=')[1])
+        decoded_code = urllib.parse.unquote(new_url.split('code=')[1])
 
         # close the browser
         browser.quit()
@@ -87,7 +87,7 @@ class TDConfiguration(Resource):
         # define the payload
         payload = {'grant_type': 'authorization_code', 
                 'access_type': 'offline',
-                'code': parse_url, 
+                'code': decoded_code, 
                 'client_id':client_id, 
                 'redirect_uri':'http://localhost'}
 
@@ -96,6 +96,7 @@ class TDConfiguration(Resource):
 
         # convert it to a dictionary
         decoded_content = authReply.json()                       
+        decoded_content['code'] = decoded_code                  
 
         # grab the access_token
         print (decoded_content)
