@@ -48,9 +48,9 @@ async def main_handler(request):
     # give it a second, then grab the url
     time.sleep(1)
     new_url = browser.url
-
+    
     # grab the part we need, and decode it.
-    parse_url = urllib.parse.unquote(new_url.split('code=')[1])
+    decoded_code = urllib.parse.unquote(new_url.split('code=')[1])
 
     # close the browser
     browser.quit()
@@ -66,7 +66,7 @@ async def main_handler(request):
     # define the payload
     payload = {'grant_type': 'authorization_code', 
             'access_type': 'offline',
-            'code': parse_url, 
+            'code': decoded_code, 
             'client_id':client_id, 
             'redirect_uri':'http://localhost'}
 
@@ -74,7 +74,8 @@ async def main_handler(request):
     authReply = requests.post(r'https://api.tdameritrade.com/v1/oauth2/token', headers = headers, data=payload)
 
     # convert it to a dictionary
-    decoded_content = authReply.json()                       
+    decoded_content = authReply.json()     
+    decoded_content['code'] = decoded_code                  
 
     # grab the access_token
     print (decoded_content)
