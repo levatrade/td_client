@@ -4,21 +4,24 @@ import requests
 from splinter import Browser
 from aiohttp import web
 
-async def main_handler(request):
-    params = await request.json()
+td_account_questions = ['What is your paternal grandfather\'s first name', 'What is your paternal grandmother\'s first name', 'What was your high school mascot', 'In what city was your high school']
+td_account_question_answers = ['Charles', 'Mary', 'Rebel', 'Bakersfield']
 
-    username = params['username']
-    account_number = params['account_number']
-    password = params['password']
-    client_id = params['client_id']
+def main_handler(request):
+    #params = request.json()
+
+    username = request['username']
+    account_number = request['account_number']
+    password = request['password']
+    client_id = request['client_id']
 
     # --------------------- AUTHENTICATION AUTOMATION --------------------------
 
     # define the location of the Chrome Driver - CHANGE THIS!!!!!
-    executable_path = {'executable_path': r'/usr/bin/chromedriver'}
+    executable_path = {'executable_path': r'/Users/Wiggum/Downloads/chromedriver'}
 
     # Create a new instance of the browser, make sure we can see it (Headless = False)
-    browser = Browser('chrome', **executable_path, headless=True)
+    browser = Browser('chrome', **executable_path, headless=False)
 
     # define the components to build a URL
     method = 'GET'
@@ -41,8 +44,24 @@ async def main_handler(request):
     username = browser.find_by_id("username").first.fill(payload['username'])
     password = browser.find_by_id("password").first.fill(payload['password'])
     submit = browser.find_by_id("accept").first.click()
+    text_message_label = browser.find_by_text("Can't get the text message?").first.click()
+    question_hyperlink = browser.find_by_value("Answer a security question").first.click()
+    
+    question_index = 0
+    for question in td_account_questions:
+        try:
+            print ('Searching for question', question)
+            p_labels = browser.find_by_tag('p')
+            if question in p_labels[2].text:
+                question_answer = td_account_question_answers[question_index]
+                answer = browser.find_by_name("su_secretquestion").first.fill(question_answer)
+        except:
+            print ('Question not found', question)
 
+        question_index += 1
+    
     # click the Accept terms button
+    browser.find_by_id("accept").first.click() 
     browser.find_by_id("accept").first.click() 
 
     # give it a second, then grab the url
@@ -344,6 +363,13 @@ content = requests.delete(url = endpoint, headers = header)
 # show the status code, we want 200
 content.status_code'''
 
-app = web.Application()
+'''app = web.Application()
 app.add_routes([web.post("/auth", main_handler)])
-web.run_app(app, port=5000)
+web.run_app(app, port=5000)'''
+
+main_handler({
+	"username":"Levatrade",
+	"account_number":"686214464",
+	"password":"Dockingunited0381",
+	"client_id":"TWATA78KIB62RS2ORMTNU9BQKJ1DU411"
+})
