@@ -8,122 +8,122 @@ td_account_questions = ['What is your paternal grandfather\'s first name', 'What
 td_account_question_answers = ['Charles', 'Mary', 'Rebel', 'Bakersfield']
 
 def main_handler(request):
-    #params = request.json()
+        #params = request.json()
 
-    username = request['username']
-    account_number = request['account_number']
-    password = request['password']
-    client_id = request['client_id']
+        username = request['username']
+        account_number = request['account_number']
+        password = request['password']
+        client_id = request['client_id']
 
-    # --------------------- AUTHENTICATION AUTOMATION --------------------------
+        # --------------------- AUTHENTICATION AUTOMATION --------------------------
 
-    # define the location of the Chrome Driver - CHANGE THIS!!!!!
-    executable_path = {'executable_path': r'/Users/Wiggum/Downloads/chromedriver'}
+        # define the location of the Chrome Driver - CHANGE THIS!!!!!
+        executable_path = {'executable_path': r'/usr/bin/chromedriver'}
 
-    # Create a new instance of the browser, make sure we can see it (Headless = False)
-    browser = Browser('chrome', **executable_path, headless=False)
+        # Create a new instance of the browser, make sure we can see it (Headless = False)
+        browser = Browser('chrome', **executable_path, headless=False)
 
-    # define the components to build a URL
-    method = 'GET'
-    url = 'https://auth.tdameritrade.com/auth?'
-    client_code = client_id + '@AMER.OAUTHAP'
-    payload = {'response_type':'code', 'redirect_uri':'http://localhost', 'client_id':client_code}
+        # define the components to build a URL
+        method = 'GET'
+        url = 'https://auth.tdameritrade.com/auth?'
+        client_code = client_id + '@AMER.OAUTHAP'
+        payload = {'response_type':'code', 'redirect_uri':'http://localhost', 'client_id':client_code}
 
-    # build the URL and store it in a new variable
-    p = requests.Request(method, url, params=payload).prepare()
-    myurl = p.url
+        # build the URL and store it in a new variable
+        p = requests.Request(method, url, params=payload).prepare()
+        myurl = p.url
 
-    # go to the URL
-    browser.visit(myurl)
+        # go to the URL
+        browser.visit(myurl)
 
-    # define items to fillout form
-    payload = {'username': username,
-            'password': password}
+        # define items to fillout form
+        payload = {'username': username,
+                'password': password}
 
-    # fill out each part of the form and click submit
-    username = browser.find_by_id("username").first.fill(payload['username'])
-    password = browser.find_by_id("password").first.fill(payload['password'])
-    submit = browser.find_by_id("accept").first.click()
-    text_message_label = browser.find_by_text("Can't get the text message?").first.click()
-    question_hyperlink = browser.find_by_value("Answer a security question").first.click()
-    
-    question_index = 0
-    for question in td_account_questions:
+        # fill out each part of the form and click submit
+        username = browser.find_by_id("username").first.fill(payload['username'])
+        password = browser.find_by_id("password").first.fill(payload['password'])
+        submit = browser.find_by_id("accept").first.click()
+        text_message_label = browser.find_by_text("Can't get the text message?").first.click()
+        question_hyperlink = browser.find_by_value("Answer a security question").first.click()
+
+        question_index = 0
+        for question in td_account_questions:
         try:
-            print ('Searching for question', question)
-            p_labels = browser.find_by_tag('p')
-            if question in p_labels[2].text:
+                print ('Searching for question', question)
+                p_labels = browser.find_by_tag('p')
+                if question in p_labels[2].text:
                 question_answer = td_account_question_answers[question_index]
                 answer = browser.find_by_name("su_secretquestion").first.fill(question_answer)
         except:
-            print ('Question not found', question)
+                print ('Question not found', question)
 
         question_index += 1
-    
-    # click the Accept terms button
-    browser.find_by_id("accept").first.click() 
-    browser.find_by_id("accept").first.click() 
 
-    # give it a second, then grab the url
-    time.sleep(1)
-    new_url = browser.url
-    
-    # grab the part we need, and decode it.
-    decoded_code = urllib.parse.unquote(new_url.split('code=')[1])
+        # click the Accept terms button
+        browser.find_by_id("accept").first.click() 
+        browser.find_by_id("accept").first.click() 
 
-    # close the browser
-    browser.quit()
+        # give it a second, then grab the url
+        time.sleep(1)
+        new_url = browser.url
 
-    # THE AUTHENTICATION ENDPOINT
+        # grab the part we need, and decode it.
+        decoded_code = urllib.parse.unquote(new_url.split('code=')[1])
 
-    # define the endpoint
-    url = r"https://api.tdameritrade.com/v1/oauth2/token"
+        # close the browser
+        browser.quit()
 
-    # define the headers
-    headers = {"Content-Type":"application/x-www-form-urlencoded"}
+        # THE AUTHENTICATION ENDPOINT
 
-    # define the payload
-    payload = {'grant_type': 'authorization_code', 
-            'access_type': 'offline',
-            'code': decoded_code, 
-            'client_id':client_id, 
-            'redirect_uri':'http://localhost'}
+        # define the endpoint
+        url = r"https://api.tdameritrade.com/v1/oauth2/token"
 
-    # post the data to get the token
-    authReply = requests.post(r'https://api.tdameritrade.com/v1/oauth2/token', headers = headers, data=payload)
+        # define the headers
+        headers = {"Content-Type":"application/x-www-form-urlencoded"}
 
-    # convert it to a dictionary
-    decoded_content = authReply.json()     
-    decoded_content['code'] = decoded_code                  
+        # define the payload
+        payload = {'grant_type': 'authorization_code', 
+                'access_type': 'offline',
+                'code': decoded_code, 
+                'client_id':client_id, 
+                'redirect_uri':'http://localhost'}
 
-    # grab the access_token
-    print (decoded_content)
+        # post the data to get the token
+        authReply = requests.post(r'https://api.tdameritrade.com/v1/oauth2/token', headers = headers, data=payload)
 
-    '''access_token = decoded_content['access_token']
-    headers = {'Authorization': "Bearer {}".format(access_token)}
+        # convert it to a dictionary
+        decoded_content = authReply.json()     
+        decoded_content['code'] = decoded_code                  
 
-    # THE DAILY PRICES ENDPOINT 
+        # grab the access_token
+        print (decoded_content)
 
-    # define an endpoint with a stock of your choice, MUST BE UPPER
-    endpoint = r"https://api.tdameritrade.com/v1/marketdata/{}/pricehistory".format('GOOG')
+        '''access_token = decoded_content['access_token']
+        headers = {'Authorization': "Bearer {}".format(access_token)}
 
-    # define the payload
-    payload = {'apikey':client_id,
-            'periodType':'day',
-            'frequencyType':'minute',
-            'frequency':'1',
-            'period':'2',
-            'endDate':'1556158524000',
-            'startDate':'1554535854000',
-            'needExtendedHoursData':'true'}
+        # THE DAILY PRICES ENDPOINT 
 
-    # make a request
-    content = requests.get(url = endpoint, params = payload)
+        # define an endpoint with a stock of your choice, MUST BE UPPER
+        endpoint = r"https://api.tdameritrade.com/v1/marketdata/{}/pricehistory".format('GOOG')
 
-    # convert it dictionary object
-    data = content.json()'''
+        # define the payload
+        payload = {'apikey':client_id,
+                'periodType':'day',
+                'frequencyType':'minute',
+                'frequency':'1',
+                'period':'2',
+                'endDate':'1556158524000',
+                'startDate':'1554535854000',
+                'needExtendedHoursData':'true'}
 
-    return web.json_response(decoded_content)
+        # make a request
+        content = requests.get(url = endpoint, params = payload)
+
+        # convert it dictionary object
+        data = content.json()'''
+
+        return web.json_response(decoded_content)
 
 '''
 
