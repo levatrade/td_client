@@ -8,12 +8,12 @@ td_account_questions = ['What is your paternal grandfather\'s first name', 'What
 td_account_question_answers = ['Charles', 'Mary', 'Rebel', 'Bakersfield']
 
 def main_handler(request):
-        #params = request.json()
+        params = request.json()
 
-        username = request['username']
-        account_number = request['account_number']
-        password = request['password']
-        client_id = request['client_id']
+        username = params['username']
+        account_number = params['account_number']
+        password = params['password']
+        client_id = params['client_id']
 
         # --------------------- AUTHENTICATION AUTOMATION --------------------------
 
