@@ -49,14 +49,14 @@ def main_handler(request):
 
         question_index = 0
         for question in td_account_questions:
-        try:
-                print ('Searching for question', question)
-                p_labels = browser.find_by_tag('p')
-                if question in p_labels[2].text:
-                question_answer = td_account_question_answers[question_index]
-                answer = browser.find_by_name("su_secretquestion").first.fill(question_answer)
-        except:
-                print ('Question not found', question)
+                try:
+                        print ('Searching for question', question)
+                        p_labels = browser.find_by_tag('p')
+                        if question in p_labels[2].text:
+                        question_answer = td_account_question_answers[question_index]
+                        answer = browser.find_by_name("su_secretquestion").first.fill(question_answer)
+                except:
+                        print ('Question not found', question)
 
         question_index += 1
 
