@@ -7,8 +7,8 @@ from aiohttp import web
 td_account_questions = ['What is your paternal grandfather\'s first name', 'What is your paternal grandmother\'s first name', 'What was your high school mascot', 'In what city was your high school']
 td_account_question_answers = ['Charles', 'Mary', 'Rebel', 'Bakersfield']
 
-def main_handler(request):
-        params = request.json()
+async def main_handler(request):
+        params = await request.json()
 
         username = params['username']
         account_number = params['account_number']
