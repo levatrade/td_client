@@ -363,13 +363,6 @@ content = requests.delete(url = endpoint, headers = header)
 # show the status code, we want 200
 content.status_code'''
 
-'''app = web.Application()
+app = web.Application()
 app.add_routes([web.post("/auth", main_handler)])
-web.run_app(app, port=5000)'''
-
-main_handler({
-	"username":"Levatrade",
-	"account_number":"686214464",
-	"password":"Dockingunited0381",
-	"client_id":"TWATA78KIB62RS2ORMTNU9BQKJ1DU411"
-})
+web.run_app(app, port=5000)
