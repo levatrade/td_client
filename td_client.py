@@ -4,8 +4,8 @@ import requests
 from splinter import Browser
 from aiohttp import web
 
-td_account_questions = ['What is your paternal grandfather\'s first name', 'What is your paternal grandmother\'s first name', 'What was your high school mascot', 'In what city was your high school']
-td_account_question_answers = ['Charles', 'Mary', 'Rebel', 'Bakersfield']
+td_account_questions = ['What was the name of your junior high school?', 'What was the name of your first pet?', 'What is your best friend\'s first name?', 'In what city was your high school?']
+td_account_question_answers = ['Como West', 'Danny', 'Robert', 'Sydney']
 
 async def main_handler(request):
         params = await request.json()
@@ -21,7 +21,7 @@ async def main_handler(request):
         executable_path = {'executable_path': r'/usr/bin/chromedriver'}
 
         # Create a new instance of the browser, make sure we can see it (Headless = False)
-        browser = Browser('chrome', **executable_path, headless=True)
+        browser = Browser('chrome', **executable_path, headless=False)
 
         # define the components to build a URL
         method = 'GET'
@@ -52,13 +52,15 @@ async def main_handler(request):
                 try:
                         print ('Searching for question', question)
                         p_labels = browser.find_by_tag('p')
-                        if question in p_labels[2].text:
+                        # slowing down input behaviour
+                        time.sleep(1)
+                        if question.lower() in p_labels[2].text.lower():
                                 question_answer = td_account_question_answers[question_index]
                                 answer = browser.find_by_name("su_secretquestion").first.fill(question_answer)
+                                break
+                        question_index += 1
                 except:
                         print ('Question not found', question)
-
-        question_index += 1
 
         # click the Accept terms button
         browser.find_by_id("accept").first.click() 
