@@ -21,7 +21,7 @@ async def main_handler(request):
         executable_path = {'executable_path': r'/usr/bin/chromedriver'}
 
         # Create a new instance of the browser, make sure we can see it (Headless = False)
-        browser = Browser('chrome', **executable_path, headless=False)
+        browser = Browser('chrome', **executable_path, headless=True)
 
         # define the components to build a URL
         method = 'GET'
