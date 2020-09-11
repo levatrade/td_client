@@ -1,10 +1,13 @@
 import time
 import urllib
 import requests
+
 from aiohttp import web
+
 from selenium import webdriver
-from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+from webdriver_manager.chrome import ChromeDriverManager
 
 td_account_questions = ['What was the name of your junior high school?', 'What was the name of your first pet?', 'What is your best friend\'s first name?', 'In what city was your high school?']
 td_account_question_answers = ['Como West', 'Danny', 'Robert', 'Sydney']
@@ -25,7 +28,9 @@ async def main_handler(request):
         # Create a new instance of the browser, make sure we can see it (Headless = False)
         #browser = Browser('chrome', **executable_path, headless=False)
         #browser = webdriver.Chrome()
-        browser = webdriver.Chrome(ChromeDriverManager().install())
+        chrome_options = Options()
+        chrome_options.add_argument("--headless")
+        browser = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
 
         # define the components to build a URL
         method = 'GET'
