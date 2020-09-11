@@ -1,8 +1,10 @@
 import time
 import urllib
 import requests
-from splinter import Browser
 from aiohttp import web
+from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.by import By
 
 td_account_questions = ['What was the name of your junior high school?', 'What was the name of your first pet?', 'What is your best friend\'s first name?', 'In what city was your high school?']
 td_account_question_answers = ['Como West', 'Danny', 'Robert', 'Sydney']
@@ -18,10 +20,12 @@ async def main_handler(request):
         # --------------------- AUTHENTICATION AUTOMATION --------------------------
 
         # define the location of the Chrome Driver - CHANGE THIS!!!!!
-        executable_path = {'executable_path': r'/usr/bin/chromedriver'}
+        #executable_path = {'executable_path': r'/Users/Wiggum/Documents/WebDriver/chromedriver'}
 
         # Create a new instance of the browser, make sure we can see it (Headless = False)
-        browser = Browser('chrome', **executable_path, headless=True)
+        #browser = Browser('chrome', **executable_path, headless=False)
+        #browser = webdriver.Chrome()
+        browser = webdriver.Chrome(ChromeDriverManager().install())
 
         # define the components to build a URL
         method = 'GET'
@@ -34,41 +38,46 @@ async def main_handler(request):
         myurl = p.url
 
         # go to the URL
-        browser.visit(myurl)
+        browser.get(myurl)
 
         # define items to fillout form
         payload = {'username': username,
                 'password': password}
 
         # fill out each part of the form and click submit
-        username = browser.find_by_id("username").first.fill(payload['username'])
-        password = browser.find_by_id("password").first.fill(payload['password'])
-        submit = browser.find_by_id("accept").first.click()
-        text_message_label = browser.find_by_text("Can't get the text message?").first.click()
-        question_hyperlink = browser.find_by_value("Answer a security question").first.click()
-
+        username = browser.find_element_by_id("username0").send_keys(payload['username'])
+        password = browser.find_element_by_id("password").send_keys(payload['password'])
+        submit = browser.find_element_by_id("accept").click()
+        By.XPATH, '//button[text()="Some text"]'
+        text_message_label = browser.find_element(By.XPATH, '//summary[text()="Can\'t get the text message?"]').click()
+        question_hyperlink = browser.find_element_by_name('init_secretquestion').click() 
+        
         question_index = 0
         for question in td_account_questions:
                 try:
                         print ('Searching for question', question)
-                        p_labels = browser.find_by_tag('p')
+                        label = browser.find_element(By.XPATH, '//*[text()[contains(., \'?\')]]')
                         # slowing down input behaviour
-                        time.sleep(1)
-                        if question.lower() in p_labels[2].text.lower():
+                        if question.lower() in label.text.lower():
                                 question_answer = td_account_question_answers[question_index]
-                                answer = browser.find_by_name("su_secretquestion").first.fill(question_answer)
+                                answer = browser.find_element_by_name("su_secretquestion").send_keys(question_answer)
                                 break
                         question_index += 1
                 except:
                         print ('Question not found', question)
 
         # click the Accept terms button
-        browser.find_by_id("accept").first.click() 
-        browser.find_by_id("accept").first.click() 
+        browser.find_element_by_id("accept").click() 
+
+        # trust page
+        radio = browser.find_element_by_xpath(".//input[@type='radio' and @value='1']")
+        browser.execute_script("arguments[0].click();", radio)
+        browser.find_element_by_id("accept").click() 
+        browser.find_element_by_id("accept").click() 
 
         # give it a second, then grab the url
         time.sleep(1)
-        new_url = browser.url
+        new_url = browser.current_url
 
         # grab the part we need, and decode it.
         decoded_code = urllib.parse.unquote(new_url.split('code=')[1])
@@ -367,4 +376,4 @@ content.status_code'''
 
 app = web.Application()
 app.add_routes([web.post("/auth", main_handler)])
-web.run_app(app, port=5000)
+web.run_app(app, port=4997)
